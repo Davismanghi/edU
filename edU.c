@@ -27,20 +27,6 @@ commandElement *change(commandElement** currComm, int initNumber, int finishNumb
 
     char currInput[500];
 
-    /*if((*currComm)->nextCommand != NULL){
-        scrollCommand = (*currComm)->nextCommand;
-        (*currComm)->nextCommand = NULL;
-        while(scrollCommand->nextCommand != NULL){
-            for(int i = scrollCommand->dimOldString; i > 0; i--){
-                free(scrollCommand->firstOldString[i]);
-            }
-            scrollCommand = scrollCommand->nextCommand;
-            free(scrollCommand->previousCommand);
-            scrollCommand->previousCommand = NULL;
-        }
-        free(scrollCommand);
-    }*/
-
 
     newCommand = malloc(sizeof(struct commandElement));
     newCommand->commandType = 1;
@@ -52,12 +38,11 @@ commandElement *change(commandElement** currComm, int initNumber, int finishNumb
     newCommand->finishingLine = finishNumber;
     newCommand->nextCommand = NULL;
     newCommand->firstOldString = NULL;
-    //newCommand->firstOldString = malloc(sizeof (char*) * (finishNumber - initNumber + 1) );
-    if(dimListToPrint == 0 || dimListToPrint < initNumber){                    //aggiunto dopo
+    if(dimListToPrint == 0 || dimListToPrint < initNumber){                    
         newCommand->dimOldString = 0;
     }
     else if(dimListToPrint < finishNumber) {
-        newCommand->dimOldString = dimListToPrint - initNumber + 1; //potrebbe essere +1
+        newCommand->dimOldString = dimListToPrint - initNumber + 1; 
     }
     else if(dimListToPrint >= finishNumber){
         newCommand->dimOldString = finishNumber - initNumber + 1;
@@ -70,6 +55,7 @@ commandElement *change(commandElement** currComm, int initNumber, int finishNumb
         dimListToPrint =finishNumber;
     }
     int i = 0;
+    
     // Read the lines and write them in the list
     for(int lineNum = initNumber; lineNum <= finishNumber; lineNum++){
         fgets(currInput,499,stdin);
@@ -93,8 +79,7 @@ commandElement *delete(struct commandElement** currComm, int initNumber, int fin
         actualCommand++;
         numCommands++;
     }
-        /*actualCommand++;
-        numCommands++;*/
+       
 
     newCommand = malloc(sizeof(struct commandElement));
     newCommand->commandType = 0;
@@ -108,7 +93,7 @@ commandElement *delete(struct commandElement** currComm, int initNumber, int fin
     newCommand->firstOldString = NULL;
 
     if(initNumber == 0 && finishNumber == 0){
-        newCommand->dimOldString = 0;    //
+        newCommand->dimOldString = 0;    
         return newCommand;
     }
 
@@ -118,13 +103,13 @@ commandElement *delete(struct commandElement** currComm, int initNumber, int fin
     }
 
     if(initNumber > dimListToPrint){
-        newCommand->dimOldString = 0;   //
+        newCommand->dimOldString = 0;   
         return newCommand;
     }
 
-    if(dimListToPrint == 0 || dimListToPrint < initNumber){                    //aggiunto dopo
+    if(dimListToPrint == 0 || dimListToPrint < initNumber){                    
         newCommand->dimOldString = 0;
-    }                                           //fine aggiunto dopo
+    }                                           
     else if(dimListToPrint < finishNumber) {
         newCommand->dimOldString = dimListToPrint - initNumber + 1;
     }
@@ -211,11 +196,11 @@ commandElement *undo(struct commandElement** currentCommand, int numberUndo){
     struct commandElement *currComm = *currentCommand;
     int oldDimListToPrint = dimListToPrint;
     if(currComm->previousCommand == NULL){
-        //dimListToPrint = 0;     ///
         return(currComm);
     }
     for(int currUndo = numberUndo; currComm->previousCommand != NULL && currUndo > 0; currUndo--, currComm = currComm->previousCommand){
         oldDimListToPrint = dimListToPrint;
+        
         //caso DELETE
         if(currComm->commandType == 0){
             if(currComm->startingLine == 0 && currComm->finishingLine == 0){
@@ -232,7 +217,7 @@ commandElement *undo(struct commandElement** currentCommand, int numberUndo){
 
 
             for(int lineNum = dimListToPrint; lineNum > currComm->startingLine; lineNum--){
-                if(lineNum - 1 - currComm->dimOldString >= 0) {      //prima >
+                if(lineNum - 1 - currComm->dimOldString >= 0) {     
                     ListToPrint[lineNum - 1] = ListToPrint[lineNum - 1 - currComm->dimOldString];
                 }
             }
@@ -240,12 +225,13 @@ commandElement *undo(struct commandElement** currentCommand, int numberUndo){
             int j = 0;
 
             if(dimListToPrint != 0) {
-                for (int i = currComm->startingLine; j < currComm->dimOldString; i++) {     //prima i <= currComm->dimOldString
+                for (int i = currComm->startingLine; j < currComm->dimOldString; i++) {     
                     ListToPrint[i - 1] = currComm->firstOldString[j];
                     j++;
                 }
             }
         }
+        
         //case CHANGE
         else{
             //caso tutto FUORI lista
@@ -254,8 +240,7 @@ commandElement *undo(struct commandElement** currentCommand, int numberUndo){
                 currComm->firstOldString = (char**)malloc(sizeof(char *)*(currComm->finishingLine - currComm->startingLine + 1));
                 int i = 0;
                 // Read the lines and write them in the list
-                for(int lineNum = currComm->startingLine; lineNum <= currComm->finishingLine; lineNum++){
-                    //if(lineNum > dimListToPrint) break;
+                for(int lineNum = currComm->startingLine; lineNum <= currComm->finishingLine; lineNum++){                    
                     currComm-> firstOldString[i] = ListToPrint[lineNum - 1];
                     ListToPrint[lineNum - 1] = NULL;
                     i++;
@@ -279,12 +264,12 @@ commandElement *undo(struct commandElement** currentCommand, int numberUndo){
 
                 //copio in lista vecchia
                 currComm->firstOldString = (char**)realloc(currComm->firstOldString,sizeof(char*)*(currComm->finishingLine - currComm->startingLine + 1));
-                for(; currLine < currComm->finishingLine; i++){     //prima i < currComm->finishingLine
+                for(; currLine < currComm->finishingLine; i++){     
                     currComm->firstOldString[i] = ListToPrint[currLine];
                     currLine++;
                 }
 
-                //dimListToPrint = currLine -1;
+               
 
                 ListToPrint = (char  **)realloc(ListToPrint,sizeof(char *) * dimListToPrint);
             }
@@ -292,8 +277,7 @@ commandElement *undo(struct commandElement** currentCommand, int numberUndo){
             else if(currComm->dimOldString == (currComm->finishingLine - currComm->startingLine + 1)){
                 char *toCopy;
                 int i = 0;
-                for(int lineNum = currComm->startingLine; lineNum <= currComm->finishingLine; lineNum++){
-                    //if(lineNum > dimListToPrint) break;
+                for(int lineNum = currComm->startingLine; lineNum <= currComm->finishingLine; lineNum++){                 
                     toCopy = /*strdup*/(currComm->firstOldString[i]);
                     currComm-> firstOldString[i] = ListToPrint[lineNum - 1];
                     ListToPrint[lineNum - 1] = toCopy;
@@ -380,7 +364,7 @@ int main() {
     ListToPrint = (char**)malloc (sizeof(char*));
 
     while(1) {
-        fgets(Command, 499, stdin);        //1024?
+        fgets(Command, 499, stdin);        
         if(strlen(Command) > 2) {
             if (Command[strlen(Command) - 2] == 'c') {
                 initNumber = atoi(Command);
@@ -492,15 +476,7 @@ int main() {
                 }
             }
         }
-        else if(Command[0] == 'q'){
-            /*if(currentCommand->nextCommand != NULL){
-                struct commandElement *toDelete;
-                while(currentCommand != NULL){
-                    toDelete = currentCommand;
-                    currentCommand = currentCommand->nextCommand;
-                    free(toDelete);
-                }
-            }*/
+        else if(Command[0] == 'q'){          
             return 0;
         }
     }
